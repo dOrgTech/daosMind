@@ -56,20 +56,25 @@ export class WikiContainer {
   private orchestrator = new MicroOrchestrator();
 
   async initializeMicroOrchestrator() {
-    const modules = {
-      [i18nTypes.Module]: i18nextBaseModule,
-      [GraphQlTypes.Module]: ApolloClientModule,
-      [CortexTypes.Module]: CortexModule,
-      [DiscoveryTypes.Module]: discoveryModule(),
-      [LensesTypes.Module]: this.lenses,
-      [EveesTypes.Module]: this.evees,
-      [DocumentsTypes.Module]: this.documents,
-      [WikisTypes.Module]: this.wikis
-    };
-    await this.orchestrator.loadModules(modules);
-    console.log(this.orchestrator);
-    customElements.define('simple-wiki', SimpleWiki);
+    try {
+      const modules = {
+        [i18nTypes.Module]: i18nextBaseModule,
+        [GraphQlTypes.Module]: ApolloClientModule,
+        [CortexTypes.Module]: CortexModule,
+        [DiscoveryTypes.Module]: discoveryModule(),
+        [LensesTypes.Module]: this.lenses,
+        [EveesTypes.Module]: this.evees,
+        [DocumentsTypes.Module]: this.documents,
+        [WikisTypes.Module]: this.wikis
+      };
+      await this.orchestrator.loadModules(modules);
+      console.log(this.orchestrator);
+      customElements.define('simple-wiki', SimpleWiki);
+    } catch (e) {
+      console.log(e)
+    }
   }
+
   constructor() {
     this.initializeMicroOrchestrator();
   }

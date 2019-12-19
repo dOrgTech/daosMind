@@ -16,10 +16,10 @@ npm install @dorgtech/daoswiki
 
 ## Usage
 
-Import the module, instantiate it with its appropiate configuration, and load it:
+Import the module and call the `.Instance` method, this class is a singleton to make sure it is instanciated just once:
 
 ```ts
 import { WikiContainer } from '@dorgtech/daoswiki';
 
-new WikiContainer()
+WikiContainer.Instance
 ```
