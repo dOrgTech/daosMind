@@ -2,7 +2,7 @@
 
 >_Prtcl resources: [Overview](https://github.com/uprtcl/spec/wiki), [Spec](https://github.com/uprtcl/spec), [Dev guide](https://github.com/uprtcl/js-uprtcl/wiki), [API reference](https://uprtcl.github.io/js-uprtcl/)
 
-This daos wiki package is opinionated for alchemy, it allow us to load all the modules we need to run the wikis funcionality
+This daos mind package is opinionated for alchemy, it allow us to load all the modules we need to run the wikis funcionality
 
 ## Dependencies
 
@@ -19,7 +19,7 @@ npm install @dorgtech/daoswiki
 Import the module and call the `.Instance` method, this class is a singleton to make sure it is instanciated just once:
 
 ```ts
-import { WikiContainer } from '@dorgtech/daoswiki';
+import { WikiContainer } from '@dorgtech/daosmind';
 
 WikiContainer.Instance
 ```
