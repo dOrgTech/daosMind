@@ -10,12 +10,14 @@ import {
   CortexModule
 } from '@uprtcl/cortex';
 import { lensesModule, LensSelectorPlugin, ActionsPlugin, UpdatablePlugin } from '@uprtcl/lenses';
-import { DocumentsIpfs, documentsModule, DocumentsTypes } from '@uprtcl/documents';
+import { DocumentsHttp, DocumentsIpfs, documentsModule, DocumentsTypes } from '@uprtcl/documents';
 import { WikisIpfs, wikisModule, WikisTypes, WikisHttp } from '@uprtcl/wikis';
 import {
   ApolloClientModule,
   GraphQlTypes,
-  i18nextBaseModule
+  i18nextBaseModule,
+  AccessControlTypes,
+  AccessControlModule
 } from '@uprtcl/common';
 import { eveesModule, EveesEthereum, EveesHttp, EveesTypes } from '@uprtcl/evees';
 import {
@@ -39,10 +41,11 @@ export class WikiContainer {
   private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection);
 
   private evees = eveesModule([this.httpEvees, this.ethEvees]);
-
+  
+  private httpDocuments = new DocumentsHttp(this.c1host, this.httpConnection);
   private ipfsDocuments = new DocumentsIpfs(this.ipfsConnection);
 
-  private documents = documentsModule([this.ipfsDocuments]);
+  private documents = documentsModule([this.ipfsDocuments, this.httpDocuments]);
 
   private httpWikis = new WikisHttp(this.c1host, this.httpConnection);
   private ipfsWikis = new WikisIpfs(this.ipfsConnection);
@@ -53,8 +56,7 @@ export class WikiContainer {
     { name: 'actions', plugin: new ActionsPlugin() },
     { name: 'updatable', plugin: new UpdatablePlugin() }
   ]);
-  private orchestrator = new MicroOrchestrator();
-
+  
   async initializeMicroOrchestrator() {
     try {
       const modules = {
@@ -63,12 +65,14 @@ export class WikiContainer {
         [CortexTypes.Module]: CortexModule,
         [DiscoveryTypes.Module]: discoveryModule(),
         [LensesTypes.Module]: this.lenses,
+        [AccessControlTypes.Module]: AccessControlModule,
         [EveesTypes.Module]: this.evees,
         [DocumentsTypes.Module]: this.documents,
         [WikisTypes.Module]: this.wikis
       };
-      await this.orchestrator.loadModules(modules);
-      console.log(this.orchestrator);
+      const orchestrator = new MicroOrchestrator();
+      await orchestrator.loadModules(modules);
+      console.log(orchestrator);
       customElements.define('simple-wiki', SimpleWiki);
     } catch (e) {
       console.log(e)

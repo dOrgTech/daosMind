@@ -1,8 +1,8 @@
 import { LitElement, html, property } from "lit-element";
-import { moduleConnect } from "@uprtcl/micro-orchestrator";
 
-import { EveesTypes } from "@uprtcl/evees";
-import { WikisTypes } from "@uprtcl/wikis";
+import { moduleConnect } from '@uprtcl/micro-orchestrator';
+import { EveesTypes } from '@uprtcl/evees';
+import { WikisTypes } from '@uprtcl/wikis';
 
 export class SimpleWiki extends moduleConnect(LitElement) {
   @property({ type: String })
@@ -49,7 +49,7 @@ export class SimpleWiki extends moduleConnect(LitElement) {
     return html`
       ${this.rootHash
         ? html`
-            <cortex-entity .hash=${this.rootHash}></cortex-entity>
+            <cortex-entity .hash=${this.rootHash} lens="content"></cortex-entity>
           `
         : html`
             Loading...
