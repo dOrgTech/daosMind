@@ -57,12 +57,14 @@ export class WikiContainer {
     { name: 'updatable', plugin: new UpdatablePlugin() }
   ]);
   
-  async initializeMicroOrchestrator() {
+  private orchestrator = new MicroOrchestrator();
+  async initializeMicroOrchestrator(store) {
     try {
       const modules = {
         [i18nTypes.Module]: i18nextBaseModule,
         [GraphQlTypes.Module]: ApolloClientModule,
         [CortexTypes.Module]: CortexModule,
+        //aqui pasamos store
         [DiscoveryTypes.Module]: discoveryModule(),
         [LensesTypes.Module]: this.lenses,
         [AccessControlTypes.Module]: AccessControlModule,
@@ -70,22 +72,20 @@ export class WikiContainer {
         [DocumentsTypes.Module]: this.documents,
         [WikisTypes.Module]: this.wikis
       };
-      const orchestrator = new MicroOrchestrator();
-      await orchestrator.loadModules(modules);
-      console.log(orchestrator);
+      await this.orchestrator.loadModules(modules);
       customElements.define('simple-wiki', SimpleWiki);
     } catch (e) {
       console.log(e)
     }
   }
 
-  constructor() {
-    this.initializeMicroOrchestrator();
+  constructor(store) {
+    this.initializeMicroOrchestrator(store);
   }
 
   private static _instance: WikiContainer;
 
-  public static get Instance() {
-    return this._instance || (this._instance = new this());
+  public static getInstance(store) {
+    return this._instance || (this._instance = new this(store));
   }
 }

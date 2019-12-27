@@ -8,16 +8,20 @@ export class SimpleWiki extends moduleConnect(LitElement) {
   @property({ type: String })
   rootHash!: string;
 
-  private wikiPattern: any = this.requestAll(WikisTypes.WikiEntity).find(
-    (p: any) => p.create
-  );
-  private perspectivePattern: any = this.requestAll(
-    EveesTypes.PerspectivePattern
-  ).find((p: any) => p.create);
+  private wikiPattern: any = null;
+  private perspectivePattern: any = null;
   private wikisProvider: any = null;
   private eveesProvider: any = null;
 
   async firstUpdated() {
+    this.perspectivePattern = this.requestAll(
+      EveesTypes.PerspectivePattern
+    ).find((p: any) => p.create);
+
+    this.wikiPattern = this.requestAll(WikisTypes.WikiEntity).find(
+      (p: any) => p.create
+    );
+
     this.wikisProvider = this.requestAll(WikisTypes.WikisRemote).find(
       (provider: any) => {
         const regexp = new RegExp("^http");
@@ -41,7 +45,9 @@ export class SimpleWiki extends moduleConnect(LitElement) {
         { dataId: wiki.id },
         this.eveesProvider.uprtclProviderLocator
       );
+      
       this.rootHash = perspective.id;
+      console.log(this.rootHash)
     }
   }
 
