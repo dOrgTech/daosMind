@@ -27,6 +27,8 @@ import {
 } from '@uprtcl/connections';
 import { SimpleWiki } from './simple-wiki';
 
+export { actualHash } from './simple-wiki'
+
 export class WikiContainer {
   private c1host = 'http://localhost:3100/uprtcl/1';
   private ethHost = 'ws://localhost:8545';

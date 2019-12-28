@@ -1,17 +1,25 @@
 import { LitElement, html, property } from "lit-element";
 
-import { moduleConnect } from '@uprtcl/micro-orchestrator';
-import { EveesTypes } from '@uprtcl/evees';
-import { WikisTypes } from '@uprtcl/wikis';
+import { moduleConnect } from "@uprtcl/micro-orchestrator";
+import { EveesTypes } from "@uprtcl/evees";
+import { WikisTypes } from "@uprtcl/wikis";
+
+export let actualHash = {};
 
 export class SimpleWiki extends moduleConnect(LitElement) {
   @property({ type: String })
-  rootHash!: string;
+  rootHash!: string | null;
 
   private wikiPattern: any = null;
   private perspectivePattern: any = null;
   private wikisProvider: any = null;
   private eveesProvider: any = null;
+
+  addWikiHash() {
+    const withSlash = () => window.history.pushState('', '', `${window.location.href}/${this.rootHash}`);
+    const withoutSlash = () => window.history.pushState('', '', `${window.location.href}${this.rootHash}`);
+    window.location.href.slice(-1) === '/' ? withoutSlash() : withSlash()
+  }
 
   async firstUpdated() {
     this.perspectivePattern = this.requestAll(
@@ -36,6 +44,17 @@ export class SimpleWiki extends moduleConnect(LitElement) {
       }
     );
 
+    //retrieving information from smart contract - we are mocking it right now with localstorage
+    if (localStorage.getItem(actualHash['dao'])) {
+      this.rootHash = localStorage.getItem(actualHash['dao'])
+    }
+
+    // checking if there is wiki hash in the url
+    if (actualHash["wiki"]) {
+      this.rootHash = actualHash["wiki"]
+    }
+
+    //create new wiki and associate it with dao address
     if (!this.rootHash) {
       const wiki = await this.wikiPattern.create()(
         { title: "First wiki on alchemy :-)" },
@@ -45,9 +64,14 @@ export class SimpleWiki extends moduleConnect(LitElement) {
         { dataId: wiki.id },
         this.eveesProvider.uprtclProviderLocator
       );
-      
+
       this.rootHash = perspective.id;
-      console.log(this.rootHash)
+      localStorage.setItem(actualHash['dao'], perspective.id);
+    }
+
+    //adding wiki's hash into the url
+    if (!actualHash['wiki']) {
+      this.addWikiHash()
     }
   }
 
@@ -55,7 +79,10 @@ export class SimpleWiki extends moduleConnect(LitElement) {
     return html`
       ${this.rootHash
         ? html`
-            <cortex-entity .hash=${this.rootHash} lens="content"></cortex-entity>
+            <cortex-entity
+              .hash=${this.rootHash}
+              lens="content"
+            ></cortex-entity>
           `
         : html`
             Loading...
