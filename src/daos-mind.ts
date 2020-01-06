@@ -69,13 +69,13 @@ export class WikiContainer {
   private orchestrator = new MicroOrchestrator();
   async initializeMicroOrchestrator(store) {
     const modules = [
-      i18nextBaseModule,
-      ApolloClientModule,
-      CortexModule,
+      new i18nextBaseModule(),
+      new ApolloClientModule(),
+      new CortexModule(),
       //aqui pasamos store
       new DiscoveryModule(),
       this.lenses,
-      AccessControlModule,
+      new AccessControlModule(),
       this.evees,
       this.documents,
       this.wikis
