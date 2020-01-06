@@ -2,8 +2,6 @@ import {
   MicroOrchestrator,
   i18nextBaseModule
 } from '@uprtcl/micro-orchestrator';
-import { DiscoveryModule } from '@uprtcl/multiplatform';
-import { CortexModule } from '@uprtcl/cortex';
 import {
   LensesModule,
   LensSelectorPlugin,
@@ -15,7 +13,7 @@ import {
   DocumentsModule
 } from '@uprtcl/documents';
 import { WikisIpfs, WikisModule, WikisHttp } from '@uprtcl/wikis';
-import { ApolloClientModule } from '@uprtcl/common';
+import { ApolloClientModule, GqlCortexModule, GqlDiscoveryModule } from '@uprtcl/common';
 import { AccessControlModule } from '@uprtcl/access-control';
 import { EveesModule, EveesEthereum, EveesHttp } from '@uprtcl/evees';
 import {
@@ -71,9 +69,9 @@ export class WikiContainer {
     const modules = [
       new i18nextBaseModule(),
       new ApolloClientModule(),
-      new CortexModule(),
+      new GqlCortexModule(),
       //aqui pasamos store
-      new DiscoveryModule(),
+      new GqlDiscoveryModule(),
       this.lenses,
       new AccessControlModule(),
       this.evees,
