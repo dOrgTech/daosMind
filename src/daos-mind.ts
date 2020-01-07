@@ -13,7 +13,11 @@ import {
   DocumentsModule
 } from '@uprtcl/documents';
 import { WikisIpfs, WikisModule, WikisHttp } from '@uprtcl/wikis';
-import { ApolloClientModule, GqlCortexModule, GqlDiscoveryModule } from '@uprtcl/common';
+import {
+  ApolloClientModule,
+  GqlCortexModule,
+  GqlDiscoveryModule
+} from '@uprtcl/common';
 import { AccessControlModule } from '@uprtcl/access-control';
 import { EveesModule, EveesEthereum, EveesHttp } from '@uprtcl/evees';
 import {
@@ -21,6 +25,7 @@ import {
   EthereumConnection,
   HttpConnection
 } from '@uprtcl/connections';
+
 import { SimpleWiki } from './simple-wiki';
 
 export { actualHash } from './simple-wiki';
@@ -45,20 +50,19 @@ export class WikiContainer {
   private httpEvees = new EveesHttp(this.c1host, this.httpConnection);
   private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection);
 
-  private evees = new EveesModule([this.httpEvees, this.ethEvees]);
+  private evees = new EveesModule([ this.ethEvees]);
 
   private httpDocuments = new DocumentsHttp(this.c1host, this.httpConnection);
   private ipfsDocuments = new DocumentsIpfs(this.ipfsConnection);
 
   private documents = new DocumentsModule([
-    this.ipfsDocuments,
-    this.httpDocuments
+    this.ipfsDocuments
   ]);
 
   private httpWikis = new WikisHttp(this.c1host, this.httpConnection);
   private ipfsWikis = new WikisIpfs(this.ipfsConnection);
 
-  private wikis = new WikisModule([this.ipfsWikis, this.httpWikis]);
+  private wikis = new WikisModule([this.ipfsWikis]);
   private lenses = new LensesModule({
     'lens-selector': new LensSelectorPlugin(),
     actions: new ActionsPlugin()
@@ -70,7 +74,6 @@ export class WikiContainer {
       new i18nextBaseModule(),
       new ApolloClientModule(),
       new GqlCortexModule(),
-      //aqui pasamos store
       new GqlDiscoveryModule(),
       this.lenses,
       new AccessControlModule(),

@@ -41,45 +41,52 @@ export class SimpleWiki extends moduleConnect(LitElement) {
 
     //create new wiki and associate it with dao address
     if (!this.rootHash) {
-      const client: ApolloClient<any> = this.request(
-        ApolloClientModule.types.Client
-      );
-      const result = await client.mutate({
-        mutation: CREATE_WIKI,
-        variables: {
-          content: {
-            title: 'Genesis Wiki',
-            pages: []
+      try {
+
+        const client: ApolloClient<any> = this.request(
+          ApolloClientModule.types.Client
+          );
+          const result = await client.mutate({
+            mutation: CREATE_WIKI,
+            variables: {
+              content: {
+                title: 'Genesis Wiki',
+                pages: []
+              }
+            }
+          });
+          
+          const createCommit = await client.mutate({
+            mutation: CREATE_COMMIT,
+            variables: {
+              dataId: result.data.createWiki.id,
+              parentsIds: []
+            }
+          });
+          
+          const createPerspective = await client.mutate({
+            mutation: CREATE_PERSPECTIVE,
+            variables: {
+              headId: createCommit.data.createCommit.id
+            }
+          });
+          
+          this.rootHash = createPerspective.data.createPerspective.id;
+          
+          if (this.rootHash) {
+            localStorage.setItem(actualHash['dao'], this.rootHash);
           }
+        } catch (e) {
+          console.log(e)
         }
-      });
-
-      const createCommit = await client.mutate({
-        mutation: CREATE_COMMIT,
-        variables: {
-          dataId: result.data.createWiki.id,
-          parentsIds: []
-        }
-      });
-
-      const createPerspective = await client.mutate({
-        mutation: CREATE_PERSPECTIVE,
-        variables: {
-          headId: createCommit.data.createCommit.id
-        }
-      });
-
-      this.rootHash = createPerspective.data.createPerspective.id;
-
-      if (this.rootHash) {
-        localStorage.setItem(actualHash['dao'], this.rootHash);
-      }
     }
 
     //adding wiki's hash into the url
     if (!actualHash['wiki']) {
       this.addWikiHash();
     }
+
+    console.log(this.rootHash)
   }
 
   render() {
