@@ -27,8 +27,8 @@ import {
 } from '@uprtcl/connections';
 
 import { SimpleWiki } from './simple-wiki';
-
 export { actualHash } from './simple-wiki';
+export { ReactiveWiki } from './ReactiveWiki'
 
 export class WikiContainer {
   private c1host = 'http://localhost:3100/uprtcl/1';
