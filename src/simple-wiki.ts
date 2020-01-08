@@ -15,6 +15,12 @@ export class SimpleWiki extends moduleConnect(LitElement) {
   @property({ type: Function })
   getRootHash!: Function;
 
+  @property({ type: Function })
+  setPageHash!: Function;
+
+  @property({ type: String })
+  selectedPage!: string;
+
   async firstUpdated() {
     if (localStorage.getItem(actualHash['dao'])) {
       const dao = localStorage.getItem(actualHash['dao']);
@@ -24,6 +30,10 @@ export class SimpleWiki extends moduleConnect(LitElement) {
     // checking if there is wiki hash in the url
     if (actualHash['wiki']) {
       this.rootHash = actualHash['wiki']
+      // checking if there is a page selected
+      if (actualHash['page']) {
+        this.selectedPage = actualHash['page']
+      }
     }
 
     //create new wiki and associate it with dao address
@@ -63,11 +73,11 @@ export class SimpleWiki extends moduleConnect(LitElement) {
       } catch (e) {
         console.log(e);
       } 
-      if (!actualHash['wiki']) {
-        this.getRootHash(this.rootHash)
-      }
-  
+      
       console.log(this.rootHash);
+    }
+    if (!actualHash['wiki']) {
+      this.getRootHash(this.rootHash)
     }
   }
 
@@ -77,13 +87,14 @@ export class SimpleWiki extends moduleConnect(LitElement) {
         ? html`
             <wiki-drawer
               wiki-id="${this.rootHash}"
-              @page-selected=${() =>
-                console.log('TODO: handle page-selected here')}
+              @page-selected=${(hash) => this.setPageHash(hash)}
+              current-page="${this.selectedPage}"
             ></wiki-drawer>
           `
         : html`
             Loading...
-          `}
+        `
+      }
     `;
   }
 }
