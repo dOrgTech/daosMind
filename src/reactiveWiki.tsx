@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Redirect } from "react-router-dom";
 
 interface IProps {
   dao: any;
@@ -21,9 +22,11 @@ export class ReactiveWiki extends React.Component<IProps, null> {
 
   componentDidMount() {
     const element = this.handlerRef.current as any;
+
     element!.getRootHash = rootHash => {
-      this.props.location['pathname'] = '/jaja'
-      // this.props.match.params.perspectiveId = rootHash
+      const actualUrl = this.props.location.pathname
+      const newUrl = actualUrl.slice(-1) === '/' ? `${actualUrl}${rootHash}` : `${actualUrl}/${rootHash}`
+      return this.props.history.push(newUrl);
     }
   }
 
