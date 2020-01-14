@@ -1,6 +1,6 @@
 {
   "name": "@dorgtech/daosmind",
-  "version": "0.0.2-alpha1",
+  "version": "0.0.2-alpha1.0",
   "description": "Union of all upctrl packages for alchemy",
   "homepage": "https://uprtcl.io",
   "scripts": {
@@ -8,7 +8,9 @@
     "dev": "rollup -w -c rollup.config.ts",
     "build": "npm run clean && rollup -c rollup.config.ts",
     "test": "karma start --coverage",
-    "test:watch": "karma start --auto-watch=true --single-run=false"
+    "test:watch": "karma start --auto-watch=true --single-run=false",
+    "package:release": "rm -rf ./package && mkdir ./package && cp -r ./dist/ ./package/dist && cp README.md package.json ./package && cp -r ./node_modules/lit-html ./package/node_modules && cp -r ./node_modules/lit-element ./package/node_modules && cp -r ./node_modules/graphql ./package/node_modules && cp -r ./src ./package/src",
+    "release": "npm run build && npm run package:release && npm publish ./package --access public"
   },
   "dependencies": {
     "@material/mwc-button": "^0.10.0",
@@ -65,6 +67,11 @@
       "name": "Pepo Ospina",
       "email": "pepo@collectiveone.org",
       "url": "https://github.com/pepoospina"
+    },
+    {
+      "name": "Cesar Brazon",
+      "email": "cesar@dorg.tech",
+      "url": "https://github.com/cbrzn"
     }
   ],
   "license": "MIT",
@@ -73,7 +80,7 @@
   "typings": "dist/types/daos-mind.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/uprtcl/js-uprtcl/"
+    "url": "https://github.com/dorgtech/daosmind/"
   },
   "engines": {
     "node": ">=10.0.0"
