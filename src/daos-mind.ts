@@ -69,7 +69,9 @@ export class WikiContainer {
   });
 
   private orchestrator = new MicroOrchestrator();
-  async initializeMicroOrchestrator(store) {
+
+  async initializeMicroOrchestrator(dispatcher) {
+    //dispatcher would be passed through any module (probably into access control module - not sure tho)
     const modules = [
       new i18nextBaseModule(),
       new ApolloClientModule(),
@@ -82,6 +84,22 @@ export class WikiContainer {
       this.wikis
     ];
     try {
+      console.log('si')
+      // dispatcher can be used the following way
+      const proposalValues = {
+        dao: '0x0dba90eb3b082c7e1b50d9882886feb1011b3f2b',
+        type: 'SchemeRegistrarAdd',
+        permissions: "0x" + (17).toString(16).padStart(8, "0"),
+        value: 0, // amount of eth to send with the call
+        tags: ["Amazing test", "Test"],
+        title: "I'm totally testing",
+        description: "Indeed, what a test",
+        parametersHash: '0x00000000000000000000000000000000000000000',
+        scheme: '0xce77cb61fbf2600f0e29bb50be3a5b32fc61a0a4',
+        // this is going to be changed with the generic scheme deployed to call uprtcl's contract
+        schemeToRegister: '0x9a543aef934c21da5814785e38f9a7892d3cde6e'
+      };
+      dispatcher('createProposal', proposalValues)
       await this.orchestrator.loadModules(modules);
       customElements.define('simple-wiki', SimpleWiki);
     } catch (e) {
