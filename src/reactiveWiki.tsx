@@ -6,15 +6,6 @@ interface IProps {
   match: any;
 }
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'module-container': any;
-      'simple-wiki': any;
-    }
-  }
-}
-
 export class ReactiveWiki extends React.Component<IProps, null> {
   private handlerRef: React.RefObject<HTMLInputElement> = React.createRef();
 
