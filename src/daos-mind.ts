@@ -28,7 +28,7 @@ import {
 
 import { SimpleWiki } from './simple-wiki';
 export { actualHash } from './simple-wiki';
-export { ReactiveWiki } from './ReactiveWiki'
+export { ReactiveWiki } from './ReactiveWiki';
 
 export class WikiContainer {
   private c1host = 'http://localhost:3100/uprtcl/1';
@@ -50,14 +50,12 @@ export class WikiContainer {
   private httpEvees = new EveesHttp(this.c1host, this.httpConnection);
   private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection);
 
-  private evees = new EveesModule([ this.ethEvees]);
+  private evees = new EveesModule([this.ethEvees]);
 
   private httpDocuments = new DocumentsHttp(this.c1host, this.httpConnection);
   private ipfsDocuments = new DocumentsIpfs(this.ipfsConnection);
 
-  private documents = new DocumentsModule([
-    this.ipfsDocuments
-  ]);
+  private documents = new DocumentsModule([this.ipfsDocuments]);
 
   private httpWikis = new WikisHttp(this.c1host, this.httpConnection);
   private ipfsWikis = new WikisIpfs(this.ipfsConnection);
@@ -84,21 +82,20 @@ export class WikiContainer {
       this.wikis
     ];
     try {
-      console.log('si')
       // dispatcher can be used the following way
       const proposalValues = {
-        dao: '0x0dba90eb3b082c7e1b50d9882886feb1011b3f2b',
+        dao: '0x94d52415f187f530a105a275e8f4e0d34630d9ea',
         type: 'SchemeRegistrarAdd',
-        permissions: "0x" + (17).toString(16).padStart(8, "0"),
+        permissions: '0x' + (17).toString(16).padStart(8, '0'),
         value: 0, // amount of eth to send with the call
-        tags: ["Amazing test", "Test"],
+        tags: ['Amazing test', 'Test'],
         title: "I'm totally testing",
-        description: "Indeed, what a test",
+        description: 'Indeed, what a test',
         parametersHash: '0x00000000000000000000000000000000000000000',
-        scheme: '0xce77cb61fbf2600f0e29bb50be3a5b32fc61a0a4',
+        scheme: '0x99f5a5d38d6cd364f4b0489da549c3e2013a7e32',
         schemeToRegister: '0x9a543aef934c21da5814785e38f9a7892d3cde6e'
       };
-      await dispatcher('createProposal', proposalValues)
+      // dispatcher.createProposal(proposalValues)
       await this.orchestrator.loadModules(modules);
       customElements.define('simple-wiki', SimpleWiki);
     } catch (e) {
@@ -106,13 +103,13 @@ export class WikiContainer {
     }
   }
 
-  constructor(store) {
-    this.initializeMicroOrchestrator(store);
+  constructor(dispatcher) {
+    this.initializeMicroOrchestrator(dispatcher);
   }
 
   private static _instance: WikiContainer;
 
-  public static getInstance(store) {
-    return this._instance || (this._instance = new this(store));
+  public static getInstance(dispatcher) {
+    return this._instance || (this._instance = new this(dispatcher));
   }
 }
