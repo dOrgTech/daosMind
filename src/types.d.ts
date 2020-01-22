@@ -2,7 +2,8 @@ export interface IWikiUpdateProposalParams {
   title: string;
   description: string;
   tags?: string[];
-  callData: string;
+  methodName: string;
+  methodParams: Array<string | number>;
   dao: string;
   scheme: string;
   type: 'GenericScheme',

@@ -88,24 +88,25 @@ export class WikiContainer {
 
       this is just mocked data - the real params are going to be 
       handled through the wiki component (the callData will be encoded after being sent to the dispatcher)
+*/
 
       const proposalValues: IWikiUpdateProposalParams = {
-        dao: '0x94d52415f187f530a105a275e8f4e0d34630d9ea',
+        // dao and scheme address will be retrieved from reactive wiki
+        dao: '0xac48330d4b96fc74c76ec2ac33a877e9638c1baf',
+        scheme: '0xc03170b6650e0e1f1b8cfae4ac12c74a317b58ec',
         type: 'GenericScheme',
         value: 0, // amount of eth to send with the call
-        tags: ['Amazing test', 'Test'],
-        title: "I'm totally testing",
+        tags: ['Amazing test on generic scheme', 'Test'],
+        title: "I'm totally testing but now on generic scheme :-)",
         description: 'Indeed, what a test',
-        scheme: '0x99f5a5d38d6cd364f4b0489da549c3e2013a7e32',
-        callData: ''
+        methodName: 'setHomePerspective',
+        methodParams: ['0x29', '0x29']
       };
- */
 
 /* 
       this is just a test make sure that dispatcher works - this is to registrer a scheme,
       wont work on wiki because we want to create proposals on generic schemes
       which has different params
- */      
       const proposalValues = {
         dao: '0x94d52415f187f530a105a275e8f4e0d34630d9ea',
         type: 'SchemeRegistrarAdd',
@@ -118,6 +119,7 @@ export class WikiContainer {
         scheme: '0x99f5a5d38d6cd364f4b0489da549c3e2013a7e32',
         schemeToRegister: '0x9a543aef934c21da5814785e38f9a7892d3cde6e'
       };
+*/      
       dispatcher.createProposal(proposalValues)
 
       await this.orchestrator.loadModules(modules);
