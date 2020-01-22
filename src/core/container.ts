@@ -27,7 +27,7 @@ import {
 } from '@uprtcl/connections';
 
 import { SimpleWiki } from './simple-wiki';
-import { IWikiUpdateProposalParams } from '../types'
+import { IWikiUpdateProposalParams } from '../types';
 
 export class WikiContainer {
   private c1host = 'http://localhost:3100/uprtcl/1';
@@ -80,48 +80,28 @@ export class WikiContainer {
       this.documents,
       this.wikis
     ];
-    try {
 
-/*  
-      this is going to be the one that we are going to use,
-      it's to create a proposal in wiki update generic scheme
+    try {
+      /*  
+      create a proposal in wiki update generic scheme
 
       this is just mocked data - the real params are going to be 
       handled through the wiki component (the callData will be encoded after being sent to the dispatcher)
-*/
-
+      
       const proposalValues: IWikiUpdateProposalParams = {
-        // dao and scheme address will be retrieved from reactive wiki
-        dao: '0xac48330d4b96fc74c76ec2ac33a877e9638c1baf',
-        scheme: '0xc03170b6650e0e1f1b8cfae4ac12c74a317b58ec',
-        type: 'GenericScheme',
-        value: 0, // amount of eth to send with the call
-        tags: ['Amazing test on generic scheme', 'Test'],
-        title: "I'm totally testing but now on generic scheme :-)",
-        description: 'Indeed, what a test',
         methodName: 'setHomePerspective',
         methodParams: ['0x29', '0x29']
       };
-
-/* 
-      this is just a test make sure that dispatcher works - this is to registrer a scheme,
-      wont work on wiki because we want to create proposals on generic schemes
-      which has different params
-      const proposalValues = {
-        dao: '0x94d52415f187f530a105a275e8f4e0d34630d9ea',
-        type: 'SchemeRegistrarAdd',
-        permissions: '0x' + (17).toString(16).padStart(8, '0'),
-        value: 0, // amount of eth to send with the call
-        tags: ['Amazing test', 'Test'],
-        title: "I'm totally testing",
-        description: 'Indeed, what a test',
-        parametersHash: '0x00000000000000000000000000000000000000000',
-        scheme: '0x99f5a5d38d6cd364f4b0489da549c3e2013a7e32',
-        schemeToRegister: '0x9a543aef934c21da5814785e38f9a7892d3cde6e'
-      };
-*/      
       dispatcher.createProposal(proposalValues)
-
+      
+      vote a in a proposal of wiki update generic scheme
+      const voteValues = {
+        // this proposal has to be retrieved frmo the wiki's ui
+        proposalId: '0x548a1d23051352b33b1f9589e920f1c2640b81d5d5991a7912fbb4365014a2c0',
+        voteOption: 1
+      }
+      dispatcher.voteOnProposal(voteValues)
+      */
       await this.orchestrator.loadModules(modules);
       customElements.define('simple-wiki', SimpleWiki);
     } catch (e) {
