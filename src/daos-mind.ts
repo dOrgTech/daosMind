@@ -1,3 +1,3 @@
 export { WikiContainer } from './core/container';
 export { actualHash } from './core/simple-wiki';
-export { ReactiveWiki } from './ReactiveWiki';
+export { ReactiveWiki } from './reactiveWiki';

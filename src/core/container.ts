@@ -13,18 +13,14 @@ import {
   DocumentsModule
 } from '@uprtcl/documents';
 import { WikisIpfs, WikisModule, WikisHttp } from '@uprtcl/wikis';
-import {
-  ApolloClientModule,
-  GqlCortexModule,
-  GqlDiscoveryModule
-} from '@uprtcl/common';
+import { CortexModule } from '@uprtcl/cortex';
+import { ApolloClientModule } from '@uprtcl/graphql';
+import { DiscoveryModule } from '@uprtcl/multiplatform';
 import { AccessControlModule } from '@uprtcl/access-control';
 import { EveesModule, EveesEthereum, EveesHttp } from '@uprtcl/evees';
-import {
-  IpfsConnection,
-  EthereumConnection,
-  HttpConnection
-} from '@uprtcl/connections';
+import { EthereumConnection } from '@uprtcl/ethereum-provider';
+import { HttpConnection } from '@uprtcl/http-provider';
+import { IpfsConnection } from '@uprtcl/ipfs-provider';
 
 import { SimpleWiki } from './simple-wiki';
 import { IWikiUpdateProposalParams } from '../types';
@@ -72,8 +68,8 @@ export class WikiContainer {
     const modules = [
       new i18nextBaseModule(),
       new ApolloClientModule(),
-      new GqlCortexModule(),
-      new GqlDiscoveryModule(),
+      new CortexModule(),
+      new DiscoveryModule(),
       this.lenses,
       new AccessControlModule(),
       this.evees,
@@ -103,7 +99,7 @@ export class WikiContainer {
       dispatcher.voteOnProposal(voteValues)
       */
       await this.orchestrator.loadModules(modules);
-      customElements.define('simple-wiki', SimpleWiki);
+      customElements.define('simple-wiki', SimpleWiki(dispatcher));
     } catch (e) {
       console.log(e);
     }
