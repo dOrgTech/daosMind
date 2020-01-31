@@ -57,10 +57,10 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
       if (!this.rootHash) {
         const wikisProvider: WikisProvider = this.requestAll(
           WikisModule.bindings.WikisRemote
-        ).find((provider: WikisProvider) => provider.source.includes('ipfs'));
+        ).find((provider: WikisProvider) => provider.source);
         const eveesProvider: EveesRemote = this.requestAll(
           EveesModule.bindings.EveesRemote
-        ).find((provider: EveesRemote) => provider.source.includes('ipfs'));
+        ).find((provider: EveesRemote) => provider.source);
 
         try {
           const client: ApolloClient<any> = this.request(
@@ -97,7 +97,7 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
           this.rootHash = createPerspective.data.createPerspective.id;
 
           if (this.rootHash) {
-            localStorage.setItem(actualHash['dao'], this.rootHash!);
+            localStorage.setItem(actualHash['dao'], this.rootHash);
           }
         } catch (e) {
           console.log(e);

@@ -1,26 +1,15 @@
-import {
-  MicroOrchestrator,
-  i18nextBaseModule
-} from '@uprtcl/micro-orchestrator';
-import {
-  LensesModule,
-  LensSelectorPlugin,
-  ActionsPlugin
-} from '@uprtcl/lenses';
-import {
-  DocumentsHttp,
-  DocumentsIpfs,
-  DocumentsModule
-} from '@uprtcl/documents';
+import { MicroOrchestrator, i18nextBaseModule } from '@uprtcl/micro-orchestrator';
+import { LensesModule, LensSelectorPlugin, ActionsPlugin } from '@uprtcl/lenses';
+import { DocumentsHttp, DocumentsIpfs, DocumentsModule } from '@uprtcl/documents';
 import { WikisIpfs, WikisModule, WikisHttp } from '@uprtcl/wikis';
 import { CortexModule } from '@uprtcl/cortex';
-import { ApolloClientModule } from '@uprtcl/graphql';
-import { DiscoveryModule } from '@uprtcl/multiplatform';
 import { AccessControlModule } from '@uprtcl/access-control';
 import { EveesModule, EveesEthereum, EveesHttp } from '@uprtcl/evees';
+import { IpfsConnection } from '@uprtcl/ipfs-provider';
 import { EthereumConnection } from '@uprtcl/ethereum-provider';
 import { HttpConnection } from '@uprtcl/http-provider';
-import { IpfsConnection } from '@uprtcl/ipfs-provider';
+import { ApolloClientModule } from '@uprtcl/graphql';
+import { DiscoveryModule } from '@uprtcl/multiplatform';
 
 import { SimpleWiki } from './simple-wiki';
 
