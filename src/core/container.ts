@@ -23,7 +23,6 @@ import { HttpConnection } from '@uprtcl/http-provider';
 import { IpfsConnection } from '@uprtcl/ipfs-provider';
 
 import { SimpleWiki } from './simple-wiki';
-import { IWikiUpdateProposalParams } from '../types';
 
 export class WikiContainer {
   private c1host = 'http://localhost:3100/uprtcl/1';
@@ -35,34 +34,42 @@ export class WikiContainer {
   };
 
   private httpConnection = new HttpConnection(null as any, {});
-
   private ipfsConnection = new IpfsConnection(this.ipfsConfig);
   private ethConnection = new EthereumConnection(
     { provider: this.ethHost },
     {}
   );
-
-  private httpEvees = new EveesHttp(this.c1host, this.httpConnection);
-  private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection);
-
-  private evees = new EveesModule([this.ethEvees]);
-
-  private httpDocuments = new DocumentsHttp(this.c1host, this.httpConnection);
-  private ipfsDocuments = new DocumentsIpfs(this.ipfsConnection);
-
-  private documents = new DocumentsModule([this.ipfsDocuments]);
-
-  private httpWikis = new WikisHttp(this.c1host, this.httpConnection);
-  private ipfsWikis = new WikisIpfs(this.ipfsConnection);
-
-  private wikis = new WikisModule([this.ipfsWikis]);
+  
   private lenses = new LensesModule({
     'lens-selector': new LensSelectorPlugin(),
     actions: new ActionsPlugin()
   });
-
+  
   private orchestrator = new MicroOrchestrator();
-
+  
+  private httpDocuments = new DocumentsHttp(this.c1host, this.httpConnection);
+  private ipfsDocuments = new DocumentsIpfs(this.ipfsConnection);
+  
+  private httpWikis = new WikisHttp(this.c1host, this.httpConnection);
+  private ipfsWikis = new WikisIpfs(this.ipfsConnection);
+  
+  private httpEvees = new EveesHttp(this.c1host, this.httpConnection);
+  private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection);
+  
+  private remoteMap = (eveesAuthority, entityName) => {
+    if (eveesAuthority === this.ethEvees.authority) {
+      if (entityName === 'Wiki') return this.ipfsWikis;
+      else if (entityName === 'TextNode') return this.ipfsDocuments;
+    } else {
+      if (entityName === 'Wiki') return this.httpWikis;
+      else if (entityName === 'TextNode') return this.httpDocuments;
+    }
+  };
+  
+  private documents = new DocumentsModule([this.ipfsDocuments, this.httpDocuments]);
+  private evees = new EveesModule([this.ethEvees, this.httpEvees], this.remoteMap);
+  private wikis = new WikisModule([this.ipfsWikis, this.httpWikis]);
+  
   async initializeMicroOrchestrator(dispatcher) {
     //dispatcher would be passed through any module (probably into access control module - not sure tho)
     const modules = [
