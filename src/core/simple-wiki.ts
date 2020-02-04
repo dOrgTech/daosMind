@@ -11,6 +11,7 @@ import {
 import { CREATE_WIKI, WikisModule, WikisProvider } from '@uprtcl/wikis';
 import { ApolloClient } from 'apollo-boost';
 import { IWikiUpdateProposalParams } from '../types';
+import { DocumentsModule, DocumentsRemote } from '@uprtcl/documents';
 
 export let actualHash = {};
 
@@ -57,10 +58,12 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
       if (!this.rootHash) {
         const wikisProvider: WikisProvider = this.requestAll(
           WikisModule.bindings.WikisRemote
-        ).find((provider: WikisProvider) => provider.source);
+        ).find((provider: WikisProvider) =>  provider.source.startsWith('ipfs'));
         const eveesProvider: EveesRemote = this.requestAll(
           EveesModule.bindings.EveesRemote
-        ).find((provider: EveesRemote) => provider.source);
+        ).find((provider: EveesRemote) =>  provider.source.startsWith('ipfs'));
+        
+        this.requestAll(DocumentsModule.bindings.DocumentsRemote).find((provider: DocumentsRemote) => provider.source.startsWith('ipfs'));
 
         try {
           const client: ApolloClient<any> = this.request(
