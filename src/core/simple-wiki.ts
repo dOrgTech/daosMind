@@ -10,8 +10,10 @@ import {
 } from '@uprtcl/evees';
 import { CREATE_WIKI, WikisModule, WikisProvider } from '@uprtcl/wikis';
 import { ApolloClient } from 'apollo-boost';
-import { IWikiUpdateProposalParams } from '../types';
 import { DocumentsModule, DocumentsRemote } from '@uprtcl/documents';
+import { CHANGE_OWNER } from '@uprtcl/access-control';
+
+import { IWikiUpdateProposalParams } from '../types';
 
 export let actualHash = {};
 
@@ -29,17 +31,23 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
     @property({ type: String })
     selectedPage!: string;
 
-    setupProposalListener() {
-      this.addEventListener('evees-create-proposal', e => {
+    @property({ type: Boolean, attribute: false })
+    loading: boolean;
+
+    constructor() {
+      super();
+      this.loading = true;
+    }
+    
+    async firstUpdated() {
+      this.addEventListener('evees-proposal-created', (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
-          methodName: 'setHomePerspective',
-          methodParams: ['0x29', '0x29']
+          methodName: 'setRequestAuthorized',
+          methodParams: ['0x24', '0x24']
+          // methodParams: [e.detail.proposalId, '1']
         };
         dispatcher.createProposal(proposalValues);
       });
-    }
-
-    async firstUpdated() {
       if (localStorage.getItem(actualHash['dao'])) {
         const dao = localStorage.getItem(actualHash['dao']);
         this.rootHash = dao;
@@ -69,7 +77,7 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
           const client: ApolloClient<any> = this.request(
             ApolloClientModule.bindings.Client
           );
-          const result = await client.mutate({
+          const createWiki = await client.mutate({
             mutation: CREATE_WIKI,
             variables: {
               content: {
@@ -83,7 +91,7 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
           const createCommit = await client.mutate({
             mutation: CREATE_COMMIT,
             variables: {
-              dataId: result.data.createWiki.id,
+              dataId: createWiki.data.createWiki.id,
               parentsIds: [],
               source: eveesProvider.source
             }
@@ -93,11 +101,22 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
             mutation: CREATE_PERSPECTIVE,
             variables: {
               headId: createCommit.data.createCommit.id,
-              authority: eveesProvider.authority
+              authority: eveesProvider.authority,
+              name: 'master'
             }
           });
 
-          this.rootHash = createPerspective.data.createPerspective.id;
+          const perspectiveId = createPerspective.data.createPerspective.id;
+
+          await client.mutate({
+            mutation: CHANGE_OWNER,
+            variables: {
+              entityId: perspectiveId,
+              newOwner: actualHash['dao']
+            }
+          });
+
+          this.rootHash = perspectiveId;
 
           if (this.rootHash) {
             localStorage.setItem(actualHash['dao'], this.rootHash);
@@ -111,17 +130,15 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
       if (!actualHash['wiki']) {
         this.getRootHash(this.rootHash);
       }
+      
+      this.loading = false;
     }
 
     render() {
       return html`
-        ${this.rootHash
+        ${!this.loading
           ? html`
-              <wiki-drawer
-                wiki-id="${this.rootHash}"
-                @page-selected=${hash => this.setPageHash(hash)}
-                current-page="${this.selectedPage}"
-              ></wiki-drawer>
+              <cortex-entity hash=${this.rootHash}></cortex-entity>
             `
           : html`
               Loading...
