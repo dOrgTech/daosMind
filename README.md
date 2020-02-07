@@ -16,10 +16,13 @@ npm install @dorgtech/daoswiki
 
 ## Usage
 
-Import the module and call the `.Instance` method, this class is a singleton to make sure it is instanciated just once:
+Import the module and call the `.getInstance` method, this class is a singleton to make sure it is instanciated just once:
 
 ```ts
 import { WikiContainer } from '@dorgtech/daosmind';
-
-WikiContainer.Instance
+/* 
+  The dispatcher is a class on alchemy that allow us to access alchemy actions, so they can be triggered from uprtcl components
+*/
+const dispatcher = new CustomDispatcher(wikiMethods, daoInformation)
+WikiContainer.getInstance(dispatcher)
 ```

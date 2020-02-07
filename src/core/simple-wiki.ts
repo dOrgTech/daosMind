@@ -40,13 +40,13 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
     }
     
     async firstUpdated() {
-      this.addEventListener('evees-proposal-created', (e: any) => {
+      this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
           methodName: 'setRequestAuthorized',
           methodParams: ['0x24', '0x24']
           // methodParams: [e.detail.proposalId, '1']
         };
-        dispatcher.createProposal(proposalValues);
+        return await dispatcher.createProposal(proposalValues);
       });
       if (localStorage.getItem(actualHash['dao'])) {
         const dao = localStorage.getItem(actualHash['dao']);

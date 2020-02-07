@@ -79,26 +79,6 @@ export class WikiContainer {
     ];
 
     try {
-      /*  
-      create a proposal in wiki update generic scheme
-
-      this is just mocked data - the real params are going to be 
-      handled through the wiki component (the callData will be encoded after being sent to the dispatcher)
-      
-      const proposalValues: IWikiUpdateProposalParams = {
-        methodName: 'setHomePerspective',
-        methodParams: ['0x29', '0x29']
-      };
-      dispatcher.createProposal(proposalValues)
-      
-      vote a in a proposal of wiki update generic scheme
-      const voteValues = {
-        // this proposal has to be retrieved frmo the wiki's ui
-        proposalId: '0x548a1d23051352b33b1f9589e920f1c2640b81d5d5991a7912fbb4365014a2c0',
-        voteOption: 1
-      }
-      dispatcher.voteOnProposal(voteValues)
-      */
       await this.orchestrator.loadModules(modules);
       customElements.define('simple-wiki', SimpleWiki(dispatcher));
     } catch (e) {
