@@ -22,27 +22,30 @@ export class WikiContainer {
     protocol: 'https'
   };
 
+  private httpCidConfig = { version: 1, type: 'sha3-256', codec: 'raw', base: 'base58btc' };
+  private ipfsCidConfig = { version: 1, type: 'sha2-256', codec: 'raw', base: 'base58btc' };
+
   private httpConnection = new HttpConnection(null as any, {});
   private ipfsConnection = new IpfsConnection(this.ipfsConfig);
   private ethConnection = new EthereumConnection(
     { provider: this.ethHost },
     {}
   );
-  
+
   private lenses = new LensesModule({
     'lens-selector': new LensSelectorPlugin(),
     actions: new ActionsPlugin()
   });
-  
-  private httpEvees = new EveesHttp(this.c1host, this.httpConnection, this.ethConnection);
-  private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection);
-  
-  private httpDocuments = new DocumentsHttp(this.c1host, this.httpConnection);
-  private ipfsDocuments = new DocumentsIpfs(this.ipfsConnection);
-  
-  private httpWikis = new WikisHttp(this.c1host, this.httpConnection);
-  private ipfsWikis = new WikisIpfs(this.ipfsConnection);
-  
+
+  private httpEvees = new EveesHttp(this.c1host, this.httpConnection, this.ethConnection, this.httpCidConfig);
+  private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection, undefined, this.ipfsCidConfig);
+
+  private httpDocuments = new DocumentsHttp(this.c1host, this.httpConnection, this.httpCidConfig);
+  private ipfsDocuments = new DocumentsIpfs(this.ipfsConnection, this.ipfsCidConfig);
+
+  private httpWikis = new WikisHttp(this.c1host, this.httpConnection, this.httpCidConfig);
+  private ipfsWikis = new WikisIpfs(this.ipfsConnection, this.ipfsCidConfig);
+
   private remoteMap = (eveesAuthority, entityName) => {
     if (eveesAuthority === this.ethEvees.authority) {
       if (entityName === 'Wiki') return this.ipfsWikis;
@@ -52,18 +55,18 @@ export class WikiContainer {
       else if (entityName === 'TextNode') return this.httpDocuments;
     }
   };
-  
+
   private remotesConfig = {
     map: this.remoteMap,
     defaultCreator: this.httpEvees
   }
-  
+
   private evees = new EveesModule([this.ethEvees, this.httpEvees], this.remotesConfig);
   private documents = new DocumentsModule([this.ipfsDocuments, this.httpDocuments]);
   private wikis = new WikisModule([this.ipfsWikis, this.httpWikis]);
-  
+
   private orchestrator = new MicroOrchestrator();
-  
+
   async initializeMicroOrchestrator(dispatcher) {
     //dispatcher would be passed through any module (probably into access control module - not sure tho)
     const modules = [
