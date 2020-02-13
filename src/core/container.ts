@@ -11,10 +11,10 @@ import { HttpConnection } from '@uprtcl/http-provider';
 import { ApolloClientModule } from '@uprtcl/graphql';
 import { DiscoveryModule } from '@uprtcl/multiplatform';
 
-import { SimpleWiki } from './simple-wiki';
+import { SimpleWiki } from './simple-wiki';ser
 
 export class WikiContainer {
-  private c1host = 'http://localhost:3100/uprtcl/1';
+  private c1host = 'http://3.12.79.127:3100/uprtcl/1';
   private ethHost = '';
   private ipfsConfig = {
     host: 'ipfs.infura.io',
