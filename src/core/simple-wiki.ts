@@ -43,8 +43,7 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
       this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
           methodName: 'setRequestAuthorized',
-          methodParams: ['0x24', '0x24']
-          // methodParams: [e.detail.proposalId, '1']
+          methodParams: [e.detail.proposalId, '1']
         };
         return await dispatcher.createProposal(proposalValues);
       });

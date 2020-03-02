@@ -11,10 +11,10 @@ import { HttpConnection } from '@uprtcl/http-provider';
 import { ApolloClientModule } from '@uprtcl/graphql';
 import { DiscoveryModule } from '@uprtcl/multiplatform';
 
-import { SimpleWiki } from './simple-wiki';ser
+import { SimpleWiki } from './simple-wiki';
 
 export class WikiContainer {
-  private c1host = 'http://3.12.79.127:3100/uprtcl/1';
+  private c1host = 'http://localhost:3100/uprtcl/1';
   private ethHost = '';
   private ipfsConfig = {
     host: 'ipfs.infura.io',
@@ -68,7 +68,6 @@ export class WikiContainer {
   private orchestrator = new MicroOrchestrator();
 
   async initializeMicroOrchestrator(dispatcher) {
-    //dispatcher would be passed through any module (probably into access control module - not sure tho)
     const modules = [
       new i18nextBaseModule(),
       new ApolloClientModule(),
