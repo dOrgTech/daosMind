@@ -1,23 +1,14 @@
 import { LitElement, html, property } from 'lit-element';
 
-import { moduleConnect, Constructor } from '@uprtcl/micro-orchestrator';
-import { ApolloClientModule } from '@uprtcl/graphql';
-import {
-  CREATE_COMMIT,
-  CREATE_PERSPECTIVE,
-  EveesModule,
-  EveesRemote
-} from '@uprtcl/evees';
-import { CREATE_WIKI, WikisModule, WikisProvider } from '@uprtcl/wikis';
-import { ApolloClient } from 'apollo-boost';
-import { DocumentsModule, DocumentsRemote } from '@uprtcl/documents';
-import { CHANGE_OWNER } from '@uprtcl/access-control';
+import { moduleConnect } from '@uprtcl/micro-orchestrator';
+import { EveesModule, EveesBindings } from '@uprtcl/evees';
+import { WikisModule, WikiBindings } from '@uprtcl/wikis';
 
 import { IWikiUpdateProposalParams } from '../types';
 
 export let actualHash = {};
 
-export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
+export function SimpleWiki(dispatcher): any {
   class DaoWiki extends moduleConnect(LitElement) {
     @property({ type: String })
     rootHash!: string | null;
@@ -38,15 +29,16 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
       super();
       this.loading = true;
     }
-    
+
     async firstUpdated() {
       this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
           methodName: 'setRequestAuthorized',
-          methodParams: [e.detail.proposalId, '1']
+          methodParams: [e.details.proposalId, '1']
         };
-        return await dispatcher.createProposal(proposalValues);
+        await dispatcher.createProposal(proposalValues);
       });
+
       if (localStorage.getItem(actualHash['dao'])) {
         const dao = localStorage.getItem(actualHash['dao']);
         this.rootHash = dao;
@@ -61,63 +53,73 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
         }
       }
 
+      const eveesHttpProvider: any = this.requestAll(
+        EveesModule.bindings.EveesRemote
+      ).find((provider: any) => provider.authority.startsWith('http'));
+
+      await eveesHttpProvider.login();
+
       //create new wiki and associate it with dao address
       if (!this.rootHash) {
-        const wikisProvider: WikisProvider = this.requestAll(
+        const wikisProvider: any = this.requestAll(
           WikisModule.bindings.WikisRemote
-        ).find((provider: WikisProvider) =>  provider.source.startsWith('ipfs'));
-        const eveesProvider: EveesRemote = this.requestAll(
+        ).find((provider: any) => provider.source.startsWith('ipfs'));
+        const eveesEthProvider: any = this.requestAll(
           EveesModule.bindings.EveesRemote
-        ).find((provider: EveesRemote) =>  provider.source.startsWith('ipfs'));
-        
-        this.requestAll(DocumentsModule.bindings.DocumentsRemote).find((provider: DocumentsRemote) => provider.source.startsWith('ipfs'));
+        ).find((provider: any) => provider.authority.startsWith('eth'));
 
         try {
-          const client: ApolloClient<any> = this.request(
-            ApolloClientModule.bindings.Client
+          const wikipatterns = this.requestAll(WikiBindings.WikiEntity);
+          const wikicreatable: any = wikipatterns.find((p: any) => p.create);
+          const wiki: any = await wikicreatable.create()(
+            {
+              title: 'Genesis Wiki',
+              pages: []
+            },
+            wikisProvider.source
           );
-          const createWiki = await client.mutate({
-            mutation: CREATE_WIKI,
-            variables: {
-              content: {
-                title: 'Genesis Wiki',
-                pages: []
-              },
-              source: wikisProvider.source
-            }
-          });
 
-          const createCommit = await client.mutate({
-            mutation: CREATE_COMMIT,
-            variables: {
-              dataId: createWiki.data.createWiki.id,
+          const commitpatterns = this.requestAll(EveesBindings.CommitPattern);
+          const commitcreatable: any = commitpatterns.find(
+            (p: any) => p.create
+          );
+          const commit: any = await commitcreatable.create()(
+            {
+              dataId: wiki.id,
               parentsIds: [],
-              source: eveesProvider.source
-            }
-          });
+              message: 'create'
+            },
+            eveesEthProvider.source
+          );
 
-          const createPerspective = await client.mutate({
-            mutation: CREATE_PERSPECTIVE,
-            variables: {
-              headId: createCommit.data.createCommit.id,
-              authority: eveesProvider.authority,
-              name: 'master'
-            }
-          });
+          const randint = 0 + Math.floor((10000 - 0) * Math.random());
 
-          const perspectiveId = createPerspective.data.createPerspective.id;
+          const perspectivepatterns = this.requestAll(
+            EveesBindings.PerspectivePattern
+          );
+          const perspectivecreatable: any = perspectivepatterns.find(
+            (p: any) => p.create
+          );
+          const perspective = await perspectivecreatable.create()(
+            {
+              fromDetails: {
+                headId: commit.id,
+                context: `genesis-dao-wiki-${randint}`,
+                name: 'common'
+              },
+              canWrite: actualHash['dao']
+            },
+            eveesEthProvider.authority
+          );
 
-          await client.mutate({
-            mutation: CHANGE_OWNER,
-            variables: {
-              entityId: perspectiveId,
-              newOwner: actualHash['dao']
-            }
-          });
-
-          this.rootHash = perspectiveId;
+          this.rootHash = perspective.id;
 
           if (this.rootHash) {
+            // const proposalValues: IWikiUpdateProposalParams = {
+            //   methodName: 'setHomePerspective',
+            //   methodParams: [this.rootHash, actualHash['dao']]
+            // };
+            // await dispatcher.createProposal(proposalValues);
             localStorage.setItem(actualHash['dao'], this.rootHash);
           }
         } catch (e) {
@@ -129,7 +131,7 @@ export function SimpleWiki(dispatcher): Constructor<HTMLElement> {
       if (!actualHash['wiki']) {
         this.getRootHash(this.rootHash);
       }
-      
+
       this.loading = false;
     }
 
