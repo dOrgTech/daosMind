@@ -38,7 +38,7 @@ export class WikiContainer {
   });
 
   private httpEvees = new EveesHttp(this.c1host, this.httpConnection, this.ethConnection, this.httpCidConfig);
-  private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection, undefined, this.ipfsCidConfig);
+  private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection, this.ipfsCidConfig);
 
   private httpDocuments = new DocumentsHttp(this.c1host, this.httpConnection, this.httpCidConfig);
   private ipfsDocuments = new DocumentsIpfs(this.ipfsConnection, this.ipfsCidConfig);
