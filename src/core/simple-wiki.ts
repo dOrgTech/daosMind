@@ -5,10 +5,11 @@ import { EveesModule, EveesBindings } from '@uprtcl/evees';
 import { WikisModule, WikiBindings } from '@uprtcl/wikis';
 
 import { IWikiUpdateProposalParams } from '../types';
+import { checkHome } from '../web3'
 
 export let actualHash = {};
 
-export function SimpleWiki(dispatcher): any {
+export function SimpleWiki(web3Provider, dispatcher): any {
   class DaoWiki extends moduleConnect(LitElement) {
     @property({ type: String })
     rootHash!: string | null;
@@ -18,6 +19,9 @@ export function SimpleWiki(dispatcher): any {
 
     @property({ type: Function })
     setPageHash!: Function;
+    
+    @property({ type: Function })
+    toSchemePage!: Function;
 
     @property({ type: String })
     selectedPage!: string;
@@ -31,17 +35,17 @@ export function SimpleWiki(dispatcher): any {
     }
 
     async firstUpdated() {
+      const homePerspective = await checkHome(web3Provider, actualHash['dao']);
       this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
           methodName: 'setRequestAuthorized',
-          methodParams: [e.details.proposalId, '1']
+          methodParams: [e.detail.proposalId, '1']
         };
         await dispatcher.createProposal(proposalValues);
       });
 
-      if (localStorage.getItem(actualHash['dao'])) {
-        const dao = localStorage.getItem(actualHash['dao']);
-        this.rootHash = dao;
+      if (homePerspective) {
+        this.rootHash = homePerspective;
       }
 
       // checking if there is wiki hash in the url
@@ -115,18 +119,16 @@ export function SimpleWiki(dispatcher): any {
           this.rootHash = perspective.id;
 
           if (this.rootHash) {
-            // const proposalValues: IWikiUpdateProposalParams = {
-            //   methodName: 'setHomePerspective',
-            //   methodParams: [this.rootHash, actualHash['dao']]
-            // };
-            // await dispatcher.createProposal(proposalValues);
-            localStorage.setItem(actualHash['dao'], this.rootHash);
+            const proposalValues: IWikiUpdateProposalParams = {
+              methodName: 'setHomePerspective',
+              methodParams: [this.rootHash, actualHash['dao']]
+            };
+            await dispatcher.createProposal(proposalValues);
+            return this.toSchemePage();
           }
         } catch (e) {
           console.log(e);
         }
-
-        console.log(this.rootHash);
       }
       if (!actualHash['wiki']) {
         this.getRootHash(this.rootHash);

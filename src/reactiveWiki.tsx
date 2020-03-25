@@ -4,6 +4,7 @@ interface IProps {
   history: any;
   location: any;
   match: any;
+  wikiSchemeAddress: any;
 }
 
 export class ReactiveWiki extends React.Component<IProps, null> {
@@ -29,14 +30,23 @@ export class ReactiveWiki extends React.Component<IProps, null> {
           return this.props.history.replace(newUrl);
         } else {
           const actualUrl = location.pathname;
-          const newUrl = actualUrl.slice(-1) === '/' ? `${actualUrl}${actualPage}` : `${actualUrl}/${actualPage}`;
-          return this.props.history.push(newUrl);
+          const newUrl = `${actualUrl}/${actualPage}`;
+          return this.props.history.replace(newUrl);
         }
       } else {
         const newUrl = `/dao/${daoAvatarAddress}/wiki/${perspectiveId}`;
         return this.props.history.replace(newUrl);
       }
     };
+
+
+
+    element!.toSchemePage = () => {
+      const { match, wikiSchemeAddress } = this.props;
+      const { daoAvatarAddress } = match.params;
+      const schemePage = `/dao/${daoAvatarAddress}/scheme/${wikiSchemeAddress}`
+      return this.props.history.replace(schemePage);
+    }
   }
 
   public render() {
