@@ -5,6 +5,7 @@ interface IProps {
   location: any;
   match: any;
   wikiSchemeAddress: any;
+  isActive: boolean;
 }
 
 export class ReactiveWiki extends React.Component<IProps, null> {
@@ -39,21 +40,21 @@ export class ReactiveWiki extends React.Component<IProps, null> {
       }
     };
 
-
-
     element!.toSchemePage = () => {
       const { match, wikiSchemeAddress } = this.props;
       const { daoAvatarAddress } = match.params;
-      const schemePage = `/dao/${daoAvatarAddress}/scheme/${wikiSchemeAddress}`
+      const schemePage = `/dao/${daoAvatarAddress}/scheme/${wikiSchemeAddress}`;
       return this.props.history.replace(schemePage);
-    }
+    };
   }
 
   public render() {
-    return (
+    return this.props.isActive ? (
       <module-container>
         <simple-wiki ref={this.handlerRef} />
       </module-container>
+    ) : (
+      <h2>Voting machine is wrong. Please try again later</h2>
     );
   }
 }

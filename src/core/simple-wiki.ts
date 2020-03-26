@@ -36,6 +36,7 @@ export function SimpleWiki(web3Provider, dispatcher): any {
 
     async firstUpdated() {
       const homePerspective = await checkHome(web3Provider, actualHash['dao']);
+      console.log(homePerspective)
       this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
           methodName: 'setRequestAuthorized',
@@ -119,9 +120,10 @@ export function SimpleWiki(web3Provider, dispatcher): any {
           this.rootHash = perspective.id;
 
           if (this.rootHash) {
+            console.log('HERE')
             const proposalValues: IWikiUpdateProposalParams = {
               methodName: 'setHomePerspective',
-              methodParams: [this.rootHash, actualHash['dao']]
+              methodParams: [this.rootHash]
             };
             await dispatcher.createProposal(proposalValues);
             return this.toSchemePage();

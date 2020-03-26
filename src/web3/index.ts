@@ -10,6 +10,6 @@ export const checkHome = async (web3provider, dao) => {
     abi,
     '0xa371A1F205a2723C37ba3E35BbF2D7eA04c77402'
   );
-
+    console.log(contractInstance)
   return await contractInstance.methods.getHomePerspective(dao).call()
 };

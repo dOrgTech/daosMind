@@ -20,8 +20,50 @@ export const abi = [
   },
   {
     "constant": true,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "homePerspectives",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [],
     "name": "isOwner",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "suAddress",
+        "type": "address"
+      }
+    ],
+    "name": "isSuperUser",
     "outputs": [
       {
         "internalType": "bool",
@@ -61,6 +103,26 @@ export const abi = [
     "constant": false,
     "inputs": [
       {
+        "internalType": "address",
+        "name": "suAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "value",
+        "type": "bool"
+      }
+    ],
+    "name": "setSuperUser",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "internalType": "address payable",
         "name": "newOwner",
         "type": "address"
@@ -73,30 +135,41 @@ export const abi = [
     "type": "function"
   },
   {
-    "constant": false,
+    "constant": true,
     "inputs": [
       {
-        "internalType": "contract UprtclRoot",
-        "name": "_uprtclRoot",
-        "type": "address"
-      },
-      {
-        "internalType": "contract UprtclDetails",
-        "name": "_uprtclDetails",
-        "type": "address"
-      },
-      {
-        "internalType": "contract UprtclProposals",
-        "name": "_uprtclProposals",
-        "type": "address"
-      },
-      {
-        "internalType": "contract UprtclHomePerspectives",
-        "name": "_uprtclHomePerspectives",
+        "internalType": "address",
+        "name": "owner",
         "type": "address"
       }
     ],
-    "name": "setDependencies",
+    "name": "getHomePerspective",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "home",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "perspectiveId",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "msgSender",
+        "type": "address"
+      }
+    ],
+    "name": "setHomePerspectiveSuperUser",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -111,84 +184,7 @@ export const abi = [
         "type": "string"
       }
     ],
-    "name": "setHomePerspective",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "proposalId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint8",
-        "name": "authorized",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "execute",
-        "type": "bool"
-      }
-    ],
-    "name": "authorizeProposal",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "perspectiveIdHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "changePerspectiveOwner",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "perspectiveIdHash",
-        "type": "bytes32"
-      },
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "context",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct SharedPerspectiveDetails.PerspectiveDetails",
-        "name": "newDetails",
-        "type": "tuple"
-      }
-    ],
-    "name": "setPerspectiveDetails",
+    "name": "setHomePerspectivePublic",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
