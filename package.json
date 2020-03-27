@@ -1,6 +1,6 @@
 {
   "name": "@dorgtech/daosmind",
-  "version": "0.0.1-beta",
+  "version": "0.0.1-beta1",
   "description": "Union of all upctrl packages for alchemy",
   "homepage": "https://uprtcl.io",
   "scripts": {

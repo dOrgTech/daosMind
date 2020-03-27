@@ -5,7 +5,7 @@ import { EveesModule, EveesBindings } from '@uprtcl/evees';
 import { WikisModule, WikiBindings } from '@uprtcl/wikis';
 
 import { IWikiUpdateProposalParams } from '../types';
-import { checkHome } from '../web3'
+import { checkHome } from '../web3';
 
 export let actualHash = {};
 
@@ -19,7 +19,7 @@ export function SimpleWiki(web3Provider, dispatcher): any {
 
     @property({ type: Function })
     setPageHash!: Function;
-    
+
     @property({ type: Function })
     toSchemePage!: Function;
 
@@ -29,6 +29,9 @@ export function SimpleWiki(web3Provider, dispatcher): any {
     @property({ type: Boolean, attribute: false })
     loading: boolean;
 
+    @property({ type: Function })
+    validScheme!: Function;
+
     constructor() {
       super();
       this.loading = true;
@@ -36,7 +39,6 @@ export function SimpleWiki(web3Provider, dispatcher): any {
 
     async firstUpdated() {
       const homePerspective = await checkHome(web3Provider, actualHash['dao']);
-      console.log(homePerspective)
       this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
           methodName: 'setRequestAuthorized',
@@ -120,7 +122,6 @@ export function SimpleWiki(web3Provider, dispatcher): any {
           this.rootHash = perspective.id;
 
           if (this.rootHash) {
-            console.log('HERE')
             const proposalValues: IWikiUpdateProposalParams = {
               methodName: 'setHomePerspective',
               methodParams: [this.rootHash]
@@ -140,15 +141,17 @@ export function SimpleWiki(web3Provider, dispatcher): any {
     }
 
     render() {
-      return html`
-        ${!this.loading
+      return this.validScheme()
+        ? !this.loading
           ? html`
               <cortex-entity hash=${this.rootHash}></cortex-entity>
             `
           : html`
               Loading...
-            `}
-      `;
+            `
+        : html`
+            <h2>Voting machine is wrong. Please try again later</h2>
+          `;
     }
   }
   return DaoWiki;
