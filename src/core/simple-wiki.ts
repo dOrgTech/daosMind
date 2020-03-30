@@ -38,7 +38,7 @@ export function SimpleWiki(web3Provider, dispatcher): any {
     }
 
     async firstUpdated() {
-      const homePerspective = await checkHome(web3Provider, actualHash['dao']);
+      // const homePerspective = await checkHome(web3Provider, actualHash['dao']);
       this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
           methodName: 'setRequestAuthorized',
@@ -47,8 +47,13 @@ export function SimpleWiki(web3Provider, dispatcher): any {
         await dispatcher.createProposal(proposalValues);
       });
 
-      if (homePerspective) {
-        this.rootHash = homePerspective;
+      // if (homePerspective) {
+      //   this.rootHash = homePerspective;
+      // }
+
+      if (localStorage.getItem(actualHash['dao'])) {
+        const dao = localStorage.getItem(actualHash['dao']);
+        this.rootHash = dao;
       }
 
       // checking if there is wiki hash in the url
@@ -122,12 +127,15 @@ export function SimpleWiki(web3Provider, dispatcher): any {
           this.rootHash = perspective.id;
 
           if (this.rootHash) {
-            const proposalValues: IWikiUpdateProposalParams = {
-              methodName: 'setHomePerspective',
-              methodParams: [this.rootHash]
-            };
-            await dispatcher.createProposal(proposalValues);
-            return this.toSchemePage();
+            // const proposalValues: IWikiUpdateProposalParams = {
+            //   methodName: 'setHomePerspective',
+            //   methodParams: [this.rootHash]
+            // };
+            // await dispatcher.createProposal(proposalValues);
+            // return this.toSchemePage();
+
+            localStorage.setItem(actualHash['dao'], this.rootHash);
+
           }
         } catch (e) {
           console.log(e);
