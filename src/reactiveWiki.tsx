@@ -16,8 +16,8 @@ export class ReactiveWiki extends React.Component<IProps, null> {
 
     element!.getRootHash = rootHash => {
       const actualUrl = this.props.location.pathname;
-      const newUrl = `${actualUrl}/${rootHash}`;
-      return this.props.history.replace(newUrl);
+      const newUrl = actualUrl.slice(-1) === '/' ? `${actualUrl}${rootHash}` : `${actualUrl}/${rootHash}`;
+      return this.props.history.push(newUrl);
     };
 
     element!.setPageHash = page => {
@@ -31,8 +31,8 @@ export class ReactiveWiki extends React.Component<IProps, null> {
           return this.props.history.replace(newUrl);
         } else {
           const actualUrl = location.pathname;
-          const newUrl = `${actualUrl}/${actualPage}`;
-          return this.props.history.replace(newUrl);
+          const newUrl = actualUrl.slice(-1) === '/' ? `${actualUrl}${actualPage}` : `${actualUrl}/${actualPage}`;
+          return this.props.history.push(newUrl);
         }
       } else {
         const newUrl = `/dao/${daoAvatarAddress}/wiki/${perspectiveId}`;
