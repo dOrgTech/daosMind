@@ -1,4 +1,4 @@
-import { LitElement, html, property } from 'lit-element';
+import { LitElement, html, property, css } from 'lit-element';
 
 import { moduleConnect } from '@uprtcl/micro-orchestrator';
 import { EveesModule, EveesBindings } from '@uprtcl/evees';
@@ -9,7 +9,7 @@ import { checkHome } from '../web3';
 
 export let actualHash = {};
 
-export function SimpleWiki(web3Provider, dispatcher): any {
+export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
   class DaoWiki extends moduleConnect(LitElement) {
     @property({ type: String })
     rootHash!: string | null;
@@ -32,45 +32,99 @@ export function SimpleWiki(web3Provider, dispatcher): any {
     @property({ type: Function })
     validScheme!: Function;
 
+    @property({ type: Boolean })
+    hasHome: boolean = false;
+
+    static get styles() {
+      return css`
+        .container {
+          padding: 50px;
+          text-align: center;
+          margin-top: 80px;
+        }
+
+        .header {
+          font-size: 16px;
+          position: relative;
+          text-align: center;
+          padding-top: 20px;
+          padding-bottom: 20px;
+          border-top: $gray-border-2;
+          color: $gray-1;
+          font-weight: $bold;
+        }
+
+        a {
+          color: rgba(6, 118, 255, 1);
+          font-size: 11px;
+          font-family: 'Open Sans';
+          display: inline-block;
+          margin-right: 20px;
+        }
+
+        a.blueButton {
+          height: 30px;
+          line-height: 30px;
+          font-size: 13px;
+          color: white;
+          background-color: rgba(5, 118, 255, 1);
+          transition: all 0.25s ease;
+          border-radius: 15px;
+          display: inline-block;
+          padding: 0 30px;
+
+          &:hover {
+            background-color: rgba(19, 46, 91, 1);
+            color: $white;
+          }
+
+          &.disabled,
+          &disabled:hover {
+            background-color: rgba(200, 200, 200, 0.5);
+            border: 1px solid rgba(200, 200, 200, 1);
+            cursor: not-allowed;
+          }
+        }
+      `;
+    }
+
     constructor() {
       super();
       this.loading = true;
     }
 
-    async firstUpdated() {
-      // const homePerspective = await checkHome(web3Provider, actualHash['dao']);
-      this.addEventListener('evees-proposal-created', async (e: any) => {
-        const proposalValues: IWikiUpdateProposalParams = {
-          methodName: 'setRequestAuthorized',
-          methodParams: [e.detail.proposalId, '1']
-        };
-        await dispatcher.createProposal(proposalValues);
-      });
+    WikiPage = () =>
+      !this.loading
+        ? html`
+            <cortex-entity hash=${this.rootHash}></cortex-entity>
+          `
+        : html`
+            Loading...
+          `;
 
-      // if (homePerspective) {
-      //   this.rootHash = homePerspective;
-      // }
+    CheckShemeIsValid = () =>
+      this.validScheme()
+        ? this.WikiPage()
+        : html`
+            <h2>Voting machine is wrong. Please try again later</h2>
+          `;
 
-      if (localStorage.getItem(actualHash['dao'])) {
-        const dao = localStorage.getItem(actualHash['dao']);
-        this.rootHash = dao;
-      }
+    CreateHome = () => {
+      return html`
+        <div class="container">
+          <div class="header">Initialize your wiki now</div>
+          <a
+            href="javascript:void(0)"
+            class="blueButton"
+            @click="${this.createHome}"
+          >
+            Set home
+          </a>
+        </div>
+      `;
+    };
 
-      // checking if there is wiki hash in the url
-      if (actualHash['wiki']) {
-        this.rootHash = actualHash['wiki'];
-        // checking if there is a page selected
-        if (actualHash['page']) {
-          this.selectedPage = actualHash['page'];
-        }
-      }
-
-      const eveesHttpProvider: any = this.requestAll(
-        EveesModule.bindings.EveesRemote
-      ).find((provider: any) => provider.authority.startsWith('http'));
-
-      await eveesHttpProvider.login();
-
+    async createHome() {
       //create new wiki and associate it with dao address
       if (!this.rootHash) {
         const wikisProvider: any = this.requestAll(
@@ -135,7 +189,6 @@ export function SimpleWiki(web3Provider, dispatcher): any {
             // return this.toSchemePage();
 
             localStorage.setItem(actualHash['dao'], this.rootHash);
-
           }
         } catch (e) {
           console.log(e);
@@ -143,24 +196,50 @@ export function SimpleWiki(web3Provider, dispatcher): any {
       }
       if (!actualHash['wiki']) {
         this.getRootHash(this.rootHash);
+        this.hasHome = true;
       }
 
       this.loading = false;
     }
 
+    async firstUpdated() {
+      this.addEventListener('evees-proposal-created', async (e: any) => {
+        const proposalValues: IWikiUpdateProposalParams = {
+          methodName: 'setRequestAuthorized',
+          methodParams: [e.detail.proposalId, '1']
+        };
+        await dispatcher.createProposal(proposalValues);
+      });
+
+      const homePerspective = localStorage.getItem(actualHash['dao']);
+      // const homePerspective = await checkHome(web3Provider, actualHash['dao']);
+
+      if (homePerspective) {
+        this.hasHome = true;
+        const eveesHttpProvider: any = this.requestAll(
+          EveesModule.bindings.EveesRemote
+        ).find((provider: any) => provider.authority.startsWith('http'));
+
+        await eveesHttpProvider.login();
+
+        this.rootHash = homePerspective;
+        this.loading = false;
+      } else {
+        this.hasHome = false;
+      }
+
+      // checking if there is wiki hash in the url
+      if (actualHash['wiki']) {
+        this.rootHash = actualHash['wiki'];
+        // checking if there is a page selected
+        if (actualHash['page']) {
+          this.selectedPage = actualHash['page'];
+        }
+      }
+    }
+
     render() {
-      return this.validScheme()
-        ?
-         !this.loading
-          ? html`
-              <cortex-entity hash=${this.rootHash}></cortex-entity>
-            `
-          : html`
-              Loading...
-            `
-        : html`
-            <h2>Voting machine is wrong. Please try again later</h2>
-          `;
+      return this.hasHome ? this.CheckShemeIsValid() : this.CreateHome();
     }
   }
   return DaoWiki;

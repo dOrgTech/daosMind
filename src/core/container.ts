@@ -69,7 +69,7 @@ export class WikiContainer {
 
   private orchestrator = new MicroOrchestrator();
 
-  async initializeMicroOrchestrator(web3provider, dispatcher) {
+  async initializeMicroOrchestrator(web3provider, dispatcher, hasHomeProposal) {
     const modules = [
       new i18nextBaseModule(),
       new ApolloClientModule(),
@@ -84,19 +84,19 @@ export class WikiContainer {
 
     try {
       await this.orchestrator.loadModules(modules);
-      customElements.define('simple-wiki', SimpleWiki(web3provider, dispatcher));
+      customElements.define('simple-wiki', SimpleWiki(web3provider, dispatcher, hasHomeProposal));
     } catch (e) {
       console.log(e);
     }
   }
 
-  constructor(web3provider, dispatcher) {
-    this.initializeMicroOrchestrator(web3provider, dispatcher);
+  constructor(web3provider, dispatcher, hasHomeProposal) {
+    this.initializeMicroOrchestrator(web3provider, dispatcher, hasHomeProposal);
   }
 
   private static _instance: WikiContainer;
 
-  public static getInstance(web3provider, dispatcher) {
-    return this._instance || (this._instance = new this(web3provider, dispatcher));
+  public static getInstance(web3provider, dispatcher, hasHomeProposal) {
+    return this._instance || (this._instance = new this(web3provider, dispatcher, hasHomeProposal));
   }
 }
