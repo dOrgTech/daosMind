@@ -149,8 +149,8 @@ export function SimpleWiki(web3Provider, dispatcher): any {
     }
 
     render() {
-      // return this.validScheme()
-        // ?
+      return this.validScheme()
+        ?
          !this.loading
           ? html`
               <cortex-entity hash=${this.rootHash}></cortex-entity>
@@ -158,9 +158,9 @@ export function SimpleWiki(web3Provider, dispatcher): any {
           : html`
               Loading...
             `
-        // : html`
-        //     <h2>Voting machine is wrong. Please try again later</h2>
-        //   `;
+        : html`
+            <h2>Voting machine is wrong. Please try again later</h2>
+          `;
     }
   }
   return DaoWiki;
