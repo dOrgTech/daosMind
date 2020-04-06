@@ -95,19 +95,13 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
 
     WikiPage = () =>
       !this.loading
-        ? html`
-            <cortex-entity hash=${this.rootHash}></cortex-entity>
-          `
-        : html`
-            Loading...
-          `;
+        ? html` <cortex-entity hash=${this.rootHash}></cortex-entity> `
+        : html` Loading... `;
 
     CheckShemeIsValid = () =>
       this.validScheme()
         ? this.WikiPage()
-        : html`
-            <h2>Voting machine is wrong. Please try again later</h2>
-          `;
+        : html` <h2>Voting machine is wrong. Please try again later</h2> `;
 
     CreateHome = () => {
       return html`
@@ -140,7 +134,7 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
           const wiki: any = await wikicreatable.create()(
             {
               title: 'Genesis Wiki',
-              pages: []
+              pages: [],
             },
             wikisProvider.source
           );
@@ -153,7 +147,7 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
             {
               dataId: wiki.id,
               parentsIds: [],
-              message: 'create'
+              message: 'create',
             },
             eveesEthProvider.source
           );
@@ -171,9 +165,9 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
               fromDetails: {
                 headId: commit.id,
                 context: `genesis-dao-wiki-${randint}`,
-                name: 'common'
+                name: 'common',
               },
-              canWrite: actualHash['dao']
+              canWrite: actualHash['dao'],
             },
             eveesEthProvider.authority
           );
@@ -181,14 +175,19 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
           this.rootHash = perspective.id;
 
           if (this.rootHash) {
-            // const proposalValues: IWikiUpdateProposalParams = {
-            //   methodName: 'setHomePerspective',
-            //   methodParams: [this.rootHash]
-            // };
-            // await dispatcher.createProposal(proposalValues);
-            // return this.toSchemePage();
+            if (hasHomeProposal) {
+              return this.toSchemePage();
+            } else {
 
-            localStorage.setItem(actualHash['dao'], this.rootHash);
+              const proposalValues: IWikiUpdateProposalParams = {
+                methodName: 'setHomePerspective',
+                methodParams: [this.rootHash],
+              };
+              await dispatcher.createProposal(proposalValues);
+              return this.toSchemePage();
+            }
+
+            // localStorage.setItem(actualHash['dao'], this.rootHash);
           }
         } catch (e) {
           console.log(e);
@@ -206,21 +205,21 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
       this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
           methodName: 'setRequestAuthorized',
-          methodParams: [e.detail.proposalId, '1']
+          methodParams: [e.detail.proposalId, '1', true],
         };
         await dispatcher.createProposal(proposalValues);
       });
 
-      const homePerspective = localStorage.getItem(actualHash['dao']);
-      // const homePerspective = await checkHome(web3Provider, actualHash['dao']);
+      // const homePerspective = localStorage.getItem(actualHash['dao']);
+      const homePerspective = await checkHome(web3Provider, actualHash['dao']);
 
       if (homePerspective) {
-        this.hasHome = true;
         const eveesHttpProvider: any = this.requestAll(
           EveesModule.bindings.EveesRemote
         ).find((provider: any) => provider.authority.startsWith('http'));
 
         await eveesHttpProvider.login();
+        this.hasHome = true;
 
         this.rootHash = homePerspective;
         this.loading = false;
