@@ -204,7 +204,7 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
     async firstUpdated() {
       this.addEventListener('evees-proposal-created', async (e: any) => {
         const proposalValues: IWikiUpdateProposalParams = {
-          methodName: 'setRequestAuthorized',
+          methodName: 'authorizeProposal',
           methodParams: [e.detail.proposalId, '1', true],
         };
         await dispatcher.createProposal(proposalValues);
@@ -214,12 +214,12 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
       const homePerspective = await checkHome(web3Provider, actualHash['dao']);
 
       if (homePerspective) {
+        this.hasHome = true;
         const eveesHttpProvider: any = this.requestAll(
           EveesModule.bindings.EveesRemote
         ).find((provider: any) => provider.authority.startsWith('http'));
 
         await eveesHttpProvider.login();
-        this.hasHome = true;
 
         this.rootHash = homePerspective;
         this.loading = false;
