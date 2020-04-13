@@ -1,8 +1,10 @@
 import { LitElement, html, property, css } from 'lit-element';
 
+import { ApolloClient } from 'apollo-boost';
 import { moduleConnect } from '@uprtcl/micro-orchestrator';
-import { EveesModule, EveesBindings } from '@uprtcl/evees';
-import { WikisModule, WikiBindings } from '@uprtcl/wikis';
+import { EveesModule, CREATE_PERSPECTIVE, CREATE_COMMIT, CREATE_ENTITY } from '@uprtcl/evees';
+import { WikisModule } from '@uprtcl/wikis';
+import { ApolloClientModule } from '@uprtcl/graphql';
 
 import { IWikiUpdateProposalParams } from '../types';
 import { checkHome } from '../web3';
@@ -95,7 +97,7 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
 
     WikiPage = () =>
       !this.loading
-        ? html` <cortex-entity hash=${this.rootHash}></cortex-entity> `
+        ? html` <wiki-drawer ref=${this.rootHash}></wiki-drawer> `
         : html` Loading... `;
 
     CheckShemeIsValid = () =>
@@ -129,50 +131,43 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
         ).find((provider: any) => provider.authority.startsWith('eth'));
 
         try {
-          const wikipatterns = this.requestAll(WikiBindings.WikiEntity);
-          const wikicreatable: any = wikipatterns.find((p: any) => p.create);
-          const wiki: any = await wikicreatable.create()(
-            {
-              title: 'Genesis Wiki',
-              pages: [],
-            },
-            wikisProvider.source
-          );
+          const client: ApolloClient<any> = this.request(ApolloClientModule.bindings.Client) as ApolloClient<any>;
 
-          const commitpatterns = this.requestAll(EveesBindings.CommitPattern);
-          const commitcreatable: any = commitpatterns.find(
-            (p: any) => p.create
-          );
-          const commit: any = await commitcreatable.create()(
-            {
-              dataId: wiki.id,
+          const createWiki = await client.mutate({
+            mutation: CREATE_ENTITY,
+            variables: {
+              content: JSON.stringify({
+                title: 'Genesis Wiki',
+                pages: []
+              }),
+              source: wikisProvider.source
+            }
+          });
+
+          const createCommit = await client.mutate({
+            mutation: CREATE_COMMIT,
+            variables: {
+              dataId: createWiki.data.createEntity,
               parentsIds: [],
-              message: 'create',
-            },
-            eveesEthProvider.source
-          );
+              source: eveesEthProvider.source
+            }
+          });
 
           const randint = 0 + Math.floor((10000 - 0) * Math.random());
+      
+          const createPerspective = await client.mutate({
+            mutation: CREATE_PERSPECTIVE,
+            variables: {
+              headId: createCommit.data.createCommit.id,
+              context: `genesis-dao-wiki-${randint}`,
+              canWrite: '0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0',
+              authority: eveesEthProvider.authority
+            }
+          });
 
-          const perspectivepatterns = this.requestAll(
-            EveesBindings.PerspectivePattern
-          );
-          const perspectivecreatable: any = perspectivepatterns.find(
-            (p: any) => p.create
-          );
-          const perspective = await perspectivecreatable.create()(
-            {
-              fromDetails: {
-                headId: commit.id,
-                context: `genesis-dao-wiki-${randint}`,
-                name: 'common',
-              },
-              canWrite: actualHash['dao'],
-            },
-            eveesEthProvider.authority
-          );
+          const perspectiveId = createPerspective.data.createPerspective.id;
 
-          this.rootHash = perspective.id;
+          this.rootHash = perspectiveId;
 
           if (this.rootHash) {
             if (hasHomeProposal) {
