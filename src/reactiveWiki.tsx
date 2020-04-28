@@ -54,8 +54,8 @@ export class ReactiveWiki extends React.Component<IProps, null> {
 
   public render() {
     return (
-      <module-container>
-        <simple-wiki ref={this.handlerRef} />
+      <module-container style={{flexGrow: '1', flexDirection: 'column', display: 'flex' }}>
+        <simple-wiki ref={this.handlerRef} style={{flexGrow: '1', flexDirection: 'column', display: 'flex' }} />
       </module-container>
     );
   }
