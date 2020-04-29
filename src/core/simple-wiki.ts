@@ -2,7 +2,7 @@ import { LitElement, html, property, css } from 'lit-element';
 
 import { ApolloClient } from 'apollo-boost';
 import { moduleConnect } from '@uprtcl/micro-orchestrator';
-import { EveesModule, CREATE_PERSPECTIVE, CREATE_COMMIT, CREATE_ENTITY } from '@uprtcl/evees';
+import { EveesModule, EveesHelpers } from '@uprtcl/evees';
 import { WikisModule } from '@uprtcl/wikis';
 import { ApolloClientModule } from '@uprtcl/graphql';
 
@@ -133,39 +133,20 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
         try {
           const client: ApolloClient<any> = this.request(ApolloClientModule.bindings.Client) as ApolloClient<any>;
 
-          const createWiki = await client.mutate({
-            mutation: CREATE_ENTITY,
-            variables: {
-              content: JSON.stringify({
-                title: 'Genesis Wiki',
-                pages: []
-              }),
-              source: wikisProvider.source
-            }
-          });
-
-          const createCommit = await client.mutate({
-            mutation: CREATE_COMMIT,
-            variables: {
-              dataId: createWiki.data.createEntity,
-              parentsIds: [],
-              source: eveesEthProvider.source
-            }
-          });
-
+          const wiki = {
+            title: 'Genesis Wiki',
+            pages: []
+          };
+          
+          const dataId = await EveesHelpers.createEntity(client, eveesEthProvider, wiki);
+          const headId = await EveesHelpers.createCommit(client, eveesEthProvider, { dataId });
+    
           const randint = 0 + Math.floor((10000 - 0) * Math.random());
-      
-          const createPerspective = await client.mutate({
-            mutation: CREATE_PERSPECTIVE,
-            variables: {
-              headId: createCommit.data.createCommit.id,
-              context: `genesis-dao-wiki-${randint}`,
-              canWrite: actualHash['dao'],
-              authority: eveesEthProvider.authority
-            }
+          const perspectiveId = await EveesHelpers.createPerspective(client, eveesEthProvider, { 
+            headId, 
+            context: `genesis-dao-wiki-${randint}`, 
+            canWrite: '0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0'
           });
-
-          const perspectiveId = createPerspective.data.createPerspective.id;
 
           this.rootHash = perspectiveId;
 
@@ -173,7 +154,6 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
             if (hasHomeProposal) {
               return this.toSchemePage();
             } else {
-
               const proposalValues: IWikiUpdateProposalParams = {
                 methodName: 'setHomePerspective',
                 methodParams: [this.rootHash],
@@ -214,7 +194,7 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
           EveesModule.bindings.EveesRemote
         ).find((provider: any) => provider.authority.startsWith('http'));
 
-        await eveesHttpProvider.login();
+        await eveesHttpProvider.connect();
 
         this.rootHash = homePerspective;
         this.loading = false;
