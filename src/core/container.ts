@@ -46,7 +46,7 @@ export class WikiContainer {
       new i18nextBaseModule(),
       new ApolloClientModule(),
       new CortexModule(),
-      new DiscoveryModule(),
+      new DiscoveryModule([this.httpEvees.casID]),
       new LensesModule(),
       new AccessControlModule(),
       this.evees,

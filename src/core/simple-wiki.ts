@@ -14,7 +14,7 @@ export let actualHash = {};
 export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
   class DaoWiki extends moduleConnect(LitElement) {
     @property({ type: String })
-    rootHash!: string | null;
+    rootHash!: string;
 
     @property({ type: Function })
     getRootHash!: Function;
@@ -28,14 +28,17 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
     @property({ type: String })
     selectedPage!: string;
 
-    @property({ type: Boolean, attribute: false })
-    loading: boolean;
-
     @property({ type: Function })
     validScheme!: Function;
 
-    @property({ type: Boolean })
+    @property({ attribute: false })
+    loading: boolean;
+
+    @property({ attribute: false })
     hasHome: boolean = false;
+
+    @property({ attribute: false })
+    defaultAuthority!: string;
 
     static get styles() {
       return css`
@@ -97,7 +100,7 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
 
     WikiPage = () =>
       !this.loading
-        ? html` <wiki-drawer ref=${this.rootHash}></wiki-drawer> `
+        ? html` <wiki-drawer ref=${this.rootHash} default-authority=${this.defaultAuthority}></wiki-drawer> `
         : html` Loading... `;
 
     CheckShemeIsValid = () =>
@@ -192,6 +195,7 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
         ).find((provider: any) => provider.authority.startsWith('http'));
 
         await eveesHttpProvider.connect();
+        this.defaultAuthority = eveesHttpProvider.authority;
 
         this.rootHash = homePerspective;
         this.loading = false;
