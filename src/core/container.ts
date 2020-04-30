@@ -1,5 +1,5 @@
 import { MicroOrchestrator, i18nextBaseModule } from '@uprtcl/micro-orchestrator';
-import { LensesModule, LensSelectorPlugin, ActionsPlugin } from '@uprtcl/lenses';
+import { LensesModule } from '@uprtcl/lenses';
 import { DocumentsModule } from '@uprtcl/documents';
 import { WikisModule } from '@uprtcl/wikis';
 
@@ -7,14 +7,12 @@ import { CortexModule } from '@uprtcl/cortex';
 import { AccessControlModule } from '@uprtcl/access-control';
 import { EveesModule, EveesEthereum, EveesHttp } from '@uprtcl/evees';
 
-import { IpfsConnection, IpfsStore } from '@uprtcl/ipfs-provider';
-import { HttpConnection, HttpStore } from '@uprtcl/http-provider';
+import { HttpConnection } from '@uprtcl/http-provider';
 
 import { EthereumConnection } from '@uprtcl/ethereum-provider';
 
 import { ApolloClientModule } from '@uprtcl/graphql';
 import { DiscoveryModule } from '@uprtcl/multiplatform';
-
 
 import { SimpleWiki } from './simple-wiki';
 
@@ -31,42 +29,16 @@ export class WikiContainer {
   private httpCidConfig = { version: 1 as version, type: 'sha3-256', codec: 'raw', base: 'base58btc' };
   private ipfsCidConfig = { version: 1 as version, type: 'sha2-256', codec: 'raw', base: 'base58btc' };
 
-  private httpConnection = new HttpConnection(null as any, {});
-  private ipfsConnection = new IpfsConnection(this.ipfsConfig);
-  private ethConnection = new EthereumConnection(
-    { provider: this.ethHost },
-    {}
-  );
-
+  private httpConnection = new HttpConnection();
+  private ethConnection = new EthereumConnection({ provider: this.ethHost });
   
   private httpEvees = new EveesHttp(this.c1host, this.httpConnection, this.ethConnection, this.httpCidConfig);
-  private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConnection, this.ipfsCidConfig);
+  private ethEvees = new EveesEthereum(this.ethConnection, this.ipfsConfig, this.ipfsCidConfig);
 
-  private ipfsStore = new IpfsStore(this.ipfsConnection, this.ipfsCidConfig);
-  private httpStore = new HttpStore(this.c1host, this.httpConnection, this.httpCidConfig);
+  private evees = new EveesModule([this.ethEvees, this.httpEvees], this.httpEvees);
+  private documents = new DocumentsModule();
+  private wikis = new WikisModule();
   
-  private remoteMap = eveesAuthority => {
-    if (eveesAuthority === this.ethEvees.authority) {
-      return this.ipfsStore;
-    } else {
-      return this.httpStore;
-    }
-  };
-  
-  private remotesConfig = {
-    map: this.remoteMap,
-    defaultCreator: this.httpEvees
-  }
-  
-  private evees = new EveesModule([this.ethEvees, this.httpEvees], this.remotesConfig);
-  private documents = new DocumentsModule([this.ipfsStore, this.httpStore]);
-  private wikis = new WikisModule([this.ipfsStore, this.httpStore]);
-  
-  private lenses = new LensesModule({
-    'lens-selector': new LensSelectorPlugin(),
-    actions: new ActionsPlugin()
-  });
-
   private orchestrator = new MicroOrchestrator();
 
   async initializeMicroOrchestrator(web3provider, dispatcher, hasHomeProposal) {
@@ -74,8 +46,8 @@ export class WikiContainer {
       new i18nextBaseModule(),
       new ApolloClientModule(),
       new CortexModule(),
-      new DiscoveryModule(),
-      this.lenses,
+      new DiscoveryModule([this.httpEvees.casID]),
+      new LensesModule(),
       new AccessControlModule(),
       this.evees,
       this.documents,
