@@ -123,9 +123,6 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
     async createHome() {
       //create new wiki and associate it with dao address
       if (!this.rootHash) {
-        const wikisProvider: any = this.requestAll(
-          WikisModule.bindings.WikisRemote
-        ).find((provider: any) => provider.source.startsWith('ipfs'));
         const eveesEthProvider: any = this.requestAll(
           EveesModule.bindings.EveesRemote
         ).find((provider: any) => provider.authority.startsWith('eth'));

@@ -29,7 +29,7 @@ export class WikiContainer {
   private httpCidConfig = { version: 1 as version, type: 'sha3-256', codec: 'raw', base: 'base58btc' };
   private ipfsCidConfig = { version: 1 as version, type: 'sha2-256', codec: 'raw', base: 'base58btc' };
 
-  private httpConnection = new HttpConnection(null as any, {});
+  private httpConnection = new HttpConnection();
   private ethConnection = new EthereumConnection({ provider: this.ethHost });
   
   private httpEvees = new EveesHttp(this.c1host, this.httpConnection, this.ethConnection, this.httpCidConfig);
