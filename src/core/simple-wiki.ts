@@ -42,6 +42,11 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
 
     static get styles() {
       return css`
+        wiki-drawer {
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+        }
         .container {
           padding: 50px;
           text-align: center;
@@ -100,7 +105,12 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
 
     WikiPage = () =>
       !this.loading
-        ? html` <wiki-drawer ref=${this.rootHash} default-authority=${this.defaultAuthority}></wiki-drawer> `
+        ? html`
+            <wiki-drawer
+              ref=${this.rootHash}
+              default-authority=${this.defaultAuthority}
+            ></wiki-drawer>
+          `
         : html` Loading... `;
 
     CheckShemeIsValid = () =>
@@ -131,22 +141,36 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
         ).find((provider: any) => provider.authority.startsWith('eth'));
 
         try {
-          const client: ApolloClient<any> = this.request(ApolloClientModule.bindings.Client) as ApolloClient<any>;
+          const client: ApolloClient<any> = this.request(
+            ApolloClientModule.bindings.Client
+          ) as ApolloClient<any>;
 
           const wiki = {
             title: 'Genesis Wiki',
-            pages: []
+            pages: [],
           };
-          
-          const dataId = await EveesHelpers.createEntity(client, eveesEthProvider, wiki);
-          const headId = await EveesHelpers.createCommit(client, eveesEthProvider, { dataId });
-    
+
+          const dataId = await EveesHelpers.createEntity(
+            client,
+            eveesEthProvider,
+            wiki
+          );
+          const headId = await EveesHelpers.createCommit(
+            client,
+            eveesEthProvider,
+            { dataId }
+          );
+
           const randint = 0 + Math.floor((10000 - 0) * Math.random());
-          const perspectiveId = await EveesHelpers.createPerspective(client, eveesEthProvider, { 
-            headId, 
-            context: `genesis-dao-wiki-${randint}`, 
-            canWrite: actualHash['dao']
-          });
+          const perspectiveId = await EveesHelpers.createPerspective(
+            client,
+            eveesEthProvider,
+            {
+              headId,
+              context: `genesis-dao-wiki-${randint}`,
+              canWrite: actualHash['dao'],
+            }
+          );
 
           this.rootHash = perspectiveId;
 
@@ -187,6 +211,7 @@ export function SimpleWiki(web3Provider, dispatcher, hasHomeProposal): any {
 
       // const homePerspective = localStorage.getItem(actualHash['dao']);
       const homePerspective = await checkHome(web3Provider, actualHash['dao']);
+      console.log({ homePerspective });
 
       if (homePerspective) {
         this.hasHome = true;
