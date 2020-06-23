@@ -18,13 +18,9 @@ import { SimpleWiki } from './simple-wiki';
 
 type version = 1 | 0
 export class WikiContainer {
-  private c1host = 'http://localhost:3100/uprtcl/1';
+  private c1host = 'https://api.intercreativity.io/uprtcl/1';
   private ethHost = '';
-  private ipfsConfig = {
-    host: 'ipfs.infura.io',
-    port: 5001,
-    protocol: 'https'
-  };
+  private ipfsConfig = { host: 'ipfs.intercreativity.io', port: 443, protocol: 'https' };
 
   private httpCidConfig = { version: 1 as version, type: 'sha3-256', codec: 'raw', base: 'base58btc' };
   private ipfsCidConfig = { version: 1 as version, type: 'sha2-256', codec: 'raw', base: 'base58btc' };
